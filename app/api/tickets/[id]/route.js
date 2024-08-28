@@ -1,14 +1,11 @@
+import { createClient } from "../../../utils/supabase/server";
 import { NextResponse } from "next/server";
 
-export async function GET(_, { params }) {
+export async function DELETE(_, { params }) {
   const id = params.id;
-  const response = await fetch(`http://localhost:4000/tickets/${id}`);
+  const supabase = createClient();
 
-  if (!response.ok) {
-    return NextResponse.json({ error: "Ticket not found" }, { status: 404 });
-  }
+  const { error } = await supabase.from("tickets").delete().eq("id", id);
 
-  const ticket = await response.json();
-
-  return NextResponse.json(ticket, { status: 200 });
+  return NextResponse.json({ error });
 }

@@ -1,40 +1,53 @@
 import { notFound } from "next/navigation";
+import { createClient } from "../../../utils/supabase/server";
+import DeleteButton from "./DeleteButton";
 
 export const dynamicParams = true;
 
 export async function generateMetadata({ params }) {
-  const ticket = await getTicket(params.id);
+  const supabase = createClient();
+
+  const { data: ticket } = await supabase
+    .from("tickets")
+    .select()
+    .eq("id", params.id)
+    .single();
+
   return {
-    title: `Helpdesk | ${ticket.title}`,
+    title: `Helpdesk | ${ticket?.title || "Ticket not found"}`,
   };
 }
 
-export async function generateStaticParams() {
-  const response = await fetch("http://localhost:4000/tickets");
-  const tickets = await response.json();
-  return tickets.map((ticket) => ({
-    id: ticket.id.toString(),
-  }));
-}
-
 async function getTicket(id) {
-  await new Promise((resolve) => setTimeout(resolve, 3000));
-  const response = await fetch("http://localhost:4000/tickets/" + id, {
-    next: { revalidate: 60 },
-  });
+  const supabase = createClient();
 
-  if (!response.ok) {
+  const { data } = await supabase
+    .from("tickets")
+    .select()
+    .eq("id", id)
+    .single();
+
+  if (!data) {
     notFound();
   }
-  return response.json();
+  return data;
 }
 
 export default async function TicketDetails({ params }) {
   const ticket = await getTicket(params.id);
+
+  const supabase = createClient();
+  const { data, error } = await supabase.auth.getUser();
+
   return (
     <main>
       <nav>
         <h2>Ticket Details</h2>
+        <div className="ml-auto">
+          {data?.user && data.user.email === ticket.user_email && (
+            <DeleteButton id={ticket.id} />
+          )}
+        </div>
       </nav>
       <div className="card">
         <h3>{ticket.title}</h3>
