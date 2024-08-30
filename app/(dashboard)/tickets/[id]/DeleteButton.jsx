@@ -22,8 +22,8 @@ export default function DeleteButton({ id }) {
       setIsLoading(false);
     }
     if (!json.error) {
-      router.refresh();
       router.push("/tickets");
+      router.refresh();
     }
   };
 
