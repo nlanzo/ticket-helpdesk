@@ -12,12 +12,15 @@ export async function addTicket(formData) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { error } = await supabase.from("tickets").insert([
-    {
-      ...ticket,
-      user_email: user.email,
-    },
-  ]);
+  const { error } = await supabase.from("tickets").insert({
+    ...ticket,
+    user_email: user.email,
+  });
+
+  if (error) {
+    throw new Error("Failed to create ticket");
+  }
+
   revalidatePath("/tickets");
   redirect("/tickets");
 }
