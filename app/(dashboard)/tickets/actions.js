@@ -24,3 +24,15 @@ export async function addTicket(formData) {
   revalidatePath("/tickets");
   redirect("/tickets");
 }
+
+export async function deleteTicket(id) {
+  const supabase = createClient();
+  const { error } = await supabase.from("tickets").delete().eq("id", id);
+
+  if (error) {
+    throw new Error("Failed to delete ticket");
+  }
+
+  revalidatePath("/tickets");
+  redirect("/tickets");
+}
