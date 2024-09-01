@@ -1,11 +1,9 @@
-"use client";
-
-import { useState } from "react";
 import { addTicket } from "../actions";
 
-export default function CreateForm() {
-  const [isLoading, setIsLoading] = useState(false);
+// components
+import SubmitButton from "../../../components/SubmitButton";
 
+export default function CreateForm() {
   return (
     <form className="w-1/2" action={addTicket}>
       <label>
@@ -24,9 +22,7 @@ export default function CreateForm() {
           <option value="high">High priority</option>
         </select>
       </label>
-      <button className="btn-primary" disabled={isLoading}>
-        {isLoading ? <span>Adding...</span> : <span>Add Ticket</span>}
-      </button>
+      <SubmitButton />
     </form>
   );
 }
