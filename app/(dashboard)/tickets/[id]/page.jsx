@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import { createClient } from "../../../utils/supabase/server";
 import DeleteButton from "./DeleteButton";
+import CloseButton from "./CloseButton";
+import Link from "next/link";
 
 function getDaysAgo(createdAt) {
   const created = new Date(createdAt);
@@ -54,7 +56,6 @@ async function getTicket(id) {
 
 export default async function TicketDetails({ params }) {
   const ticket = await getTicket(params.id);
-
   const supabase = createClient();
   const { data, error } = await supabase.auth.getUser();
 
@@ -62,9 +63,16 @@ export default async function TicketDetails({ params }) {
     <main>
       <nav>
         <h2>Ticket Details</h2>
-        <div className="ml-auto">
-          {data?.user && data.user.email === ticket.user_email && (
-            <DeleteButton id={ticket.id} />
+        <div className="ml-auto flex gap-2">
+          {data?.user && (
+            <>
+              {!ticket.closed && data.user.email === ticket.user_email && (
+                <DeleteButton id={ticket.id} />
+              )}
+              {!ticket.closed && (
+                <CloseButton id={ticket.id} userEmail={data.user.email} />
+              )}
+            </>
           )}
         </div>
       </nav>
@@ -74,16 +82,42 @@ export default async function TicketDetails({ params }) {
             <h3>{ticket.title}</h3>
             <small className="text-gray-500">Created by {ticket.user_email}</small>
             <p className="mb-4">{ticket.body}</p>
+            {ticket.closed && ticket.closing_message && (
+              <div className="bg-gray-50 p-4 rounded-md mb-4">
+                <h4 className="text-sm font-semibold text-gray-700 mb-2">Closing Message:</h4>
+                <p className="text-gray-600">{ticket.closing_message}</p>
+              </div>
+            )}
           </div>
-          <div className="flex items-center justify-end space-x-3">
-            <span className="text-sm text-gray-500">
-              opened {getDaysAgo(ticket.created_at)}
-            </span>
-            <div className={`pill ${ticket.priority}`}>
-              {ticket.priority} priority
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-end space-x-3">
+              {ticket.closed ? (
+                <span className="text-sm text-gray-500">
+                  closed {getDaysAgo(ticket.closed_at)} by {ticket.closed_by}
+                </span>
+              ) : (
+                <span className="text-sm text-gray-500">
+                  opened {getDaysAgo(ticket.created_at)}
+                </span>
+              )}
+              <div className={`pill ${ticket.priority}`}>
+                {ticket.priority} priority
+              </div>
             </div>
+            {ticket.closed && (
+              <div className="flex justify-end">
+                <span className="text-sm text-gray-500">
+                  opened {getDaysAgo(ticket.created_at)} by {ticket.user_email}
+                </span>
+              </div>
+            )}
           </div>
         </div>
+      </div>
+      <div className="flex justify-end mt-4">
+        <Link href="/tickets/closed" className="text-sm text-blue-500 hover:underline">
+          View all closed tickets
+        </Link>
       </div>
     </main>
   );

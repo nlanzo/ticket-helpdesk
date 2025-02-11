@@ -22,7 +22,12 @@ function getDaysAgo(createdAt) {
 
 async function getTickets() {
   const supabase = createClient();
-  const { data, error } = await supabase.from("tickets").select();
+  const { data, error } = await supabase
+    .from("tickets")
+    .select()
+    .eq('closed', false)
+    .order('created_at', { ascending: false });
+
   if (error) {
     console.log(error.message);
   }

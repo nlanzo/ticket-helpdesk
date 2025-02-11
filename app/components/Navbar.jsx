@@ -13,8 +13,9 @@ export default function Navbar({ user }) {
         quality={100}
       />
       <Link href="/">Dashboard</Link>
-      <Link href="/tickets" className="mr-auto">
-        Tickets
+      <Link href="/tickets">Tickets</Link>
+      <Link href="/tickets/closed" className="mr-auto">
+        Closed Tickets
       </Link>
       {user && <span>Hello, {user.email}</span>}
       <LogoutButton />
