@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function PriorityFilter() {
+export default function PriorityFilter({ basePath = '/tickets' }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   
@@ -16,7 +16,7 @@ export default function PriorityFilter() {
     } else {
       params.set('priority', priority)
     }
-    router.push(`/tickets?${params.toString()}`)
+    router.push(`${basePath}?${params.toString()}`)
   }
 
   return (

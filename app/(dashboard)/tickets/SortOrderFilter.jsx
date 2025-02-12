@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function SortOrderFilter() {
+export default function SortOrderFilter({ basePath = '/tickets' }) {
   const router = useRouter()
   const searchParams = useSearchParams()
   
@@ -11,7 +11,7 @@ export default function SortOrderFilter() {
   const handleSortChange = (sort) => {
     const params = new URLSearchParams(searchParams)
     params.set('sort', sort)
-    router.push(`/tickets?${params.toString()}`)
+    router.push(`${basePath}?${params.toString()}`)
   }
 
   return (
