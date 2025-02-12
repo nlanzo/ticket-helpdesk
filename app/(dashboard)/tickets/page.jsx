@@ -3,6 +3,7 @@ import Link from "next/link";
 
 //components
 import TicketList from "./TicketList";
+import PriorityFilter from "./PriorityFilter";
 import { createClient } from "../../utils/supabase/server";
 
 async function getTicketCounts() {
@@ -24,7 +25,7 @@ export const metadata = {
   description: "All open tickets",
 };
 
-export default async function Tickets() {
+export default async function Tickets({ searchParams }) {
   const counts = await getTicketCounts();
   
   return (
@@ -40,8 +41,9 @@ export default async function Tickets() {
           <button className="btn-primary">New Ticket</button>
         </Link>
       </nav>
+      <PriorityFilter />
       <Suspense fallback={<div className="loading">Loading tickets...</div>}>
-        <TicketList />
+        <TicketList searchParams={{ priority: searchParams?.priority }} />
       </Suspense>
     </main>
   );

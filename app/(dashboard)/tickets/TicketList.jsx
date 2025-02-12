@@ -20,13 +20,19 @@ function getDaysAgo(createdAt) {
   return diffDays === 1 ? '1 day ago' : `${diffDays} days ago`;
 }
 
-async function getTickets() {
+async function getTickets(priority) {
   const supabase = createClient();
-  const { data, error } = await supabase
+  let query = supabase
     .from("tickets")
     .select()
     .eq('closed', false)
     .order('created_at', { ascending: false });
+
+  if (priority && priority !== 'all') {
+    query = query.eq('priority', priority);
+  }
+
+  const { data, error } = await query;
 
   if (error) {
     console.log(error.message);
@@ -34,8 +40,8 @@ async function getTickets() {
   return data;
 }
 
-export default async function TicketList() {
-  const tickets = await getTickets();
+export default async function TicketList({ searchParams }) {
+  const tickets = await getTickets(searchParams?.priority);
   return (
     <>
       {tickets.map((ticket) => (
