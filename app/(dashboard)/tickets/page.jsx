@@ -4,6 +4,7 @@ import Link from "next/link";
 //components
 import TicketList from "./TicketList";
 import PriorityFilter from "./PriorityFilter";
+import SortOrderFilter from "./SortOrderFilter";
 import { createClient } from "../../utils/supabase/server";
 
 async function getTicketCounts() {
@@ -41,9 +42,12 @@ export default async function Tickets({ searchParams }) {
           <button className="btn-primary">New Ticket</button>
         </Link>
       </nav>
-      <PriorityFilter />
+      <div className="flex justify-between items-center mb-4">
+        <PriorityFilter />
+        <SortOrderFilter />
+      </div>
       <Suspense fallback={<div className="loading">Loading tickets...</div>}>
-        <TicketList searchParams={{ priority: searchParams?.priority }} />
+        <TicketList searchParams={{ priority: searchParams?.priority, sort: searchParams?.sort }} />
       </Suspense>
     </main>
   );
