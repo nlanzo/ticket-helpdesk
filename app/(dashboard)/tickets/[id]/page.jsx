@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "../../../utils/supabase/server";
 import DeleteButton from "./DeleteButton";
 import CloseButton from "./CloseButton";
+import ReopenButton from "./ReopenButton";
 import Link from "next/link";
 
 function getDaysAgo(createdAt) {
@@ -71,6 +72,9 @@ export default async function TicketDetails({ params }) {
               )}
               {!ticket.closed && (
                 <CloseButton id={ticket.id} userEmail={data.user.email} />
+              )}
+              {ticket.closed && (
+                <ReopenButton id={ticket.id} userEmail={data.user.email} />
               )}
             </>
           )}

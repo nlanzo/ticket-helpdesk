@@ -36,3 +36,24 @@ export async function deleteTicket(id) {
   revalidatePath("/tickets");
   redirect("/tickets");
 }
+
+export async function reopen(id, userEmail) {
+  const supabase = createClient();
+
+  const { error } = await supabase
+    .from("tickets")
+    .update({ 
+      closed: false, 
+      closed_at: null, 
+      closed_by: null,
+      closing_message: null
+    })
+    .eq("id", id);
+
+  if (error) {
+    throw new Error("Failed to reopen ticket");
+  }
+
+  revalidatePath("/tickets");
+  revalidatePath(`/tickets/${id}`);
+}
