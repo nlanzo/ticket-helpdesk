@@ -1,32 +1,33 @@
-import { createClient } from '../../../utils/supabase/server'
+'use client';
+
 import { getDaysAgo } from '../utils'
 import Link from 'next/link'
+import { useState, useEffect } from 'react'
 
-async function getClosedTickets(priority, sort = 'newest') {
-  const supabase = createClient()
-  let query = supabase
-    .from('tickets')
-    .select()
-    .eq('closed', true)
-    .order('closed_at', { ascending: sort === 'oldest' })
-  
-  if (priority && priority !== 'all') {
-    query = query.eq('priority', priority)
-  }
-  
-  const { data, error } = await query
-  
-  if (error) {
-    console.log(error.message)
-  }
-  
-  return data
-}
+export default function ClosedTicketList({ initialTickets, searchParams }) {
+  const [tickets, setTickets] = useState(initialTickets);
 
-export default async function ClosedTicketList({ searchParams }) {
-  const priority = searchParams?.priority || 'all'
-  const sort = searchParams?.sort || 'newest'
-  const tickets = await getClosedTickets(priority, sort)
+  useEffect(() => {
+    let filteredTickets = [...initialTickets];
+    
+    // Apply priority filter
+    if (searchParams?.priority && searchParams.priority !== 'all') {
+      filteredTickets = filteredTickets.filter(ticket => 
+        ticket.priority === searchParams.priority
+      );
+    }
+
+    // Apply sort
+    filteredTickets.sort((a, b) => {
+      const aDate = new Date(a.closed_at);
+      const bDate = new Date(b.closed_at);
+      return searchParams?.sort === 'oldest' 
+        ? aDate - bDate 
+        : bDate - aDate;
+    });
+
+    setTickets(filteredTickets);
+  }, [initialTickets, searchParams?.priority, searchParams?.sort]);
   
   return (
     <div className="mb-8">
@@ -67,5 +68,5 @@ export default async function ClosedTicketList({ searchParams }) {
         <p className="text-center text-gray-500 mt-8">No closed tickets found</p>
       )}
     </div>
-  )
+  );
 }

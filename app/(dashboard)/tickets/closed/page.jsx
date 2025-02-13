@@ -40,13 +40,29 @@ async function getClosedTickets(priority, sort) {
   return data
 }
 
+async function getInitialClosedTickets() {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('tickets')
+    .select()
+    .eq('closed', true)
+    .order('closed_at', { ascending: false })
+  
+  if (error) {
+    console.log(error.message)
+    return []
+  }
+  
+  return data
+}
+
 export const metadata = {
   title: 'Helpdesk | Closed Tickets',
   description: 'View all closed tickets',
 }
 
 export default async function ClosedTickets({ searchParams }) {
-  const tickets = await getClosedTickets(searchParams?.priority, searchParams?.sort)
+  const initialTickets = await getInitialClosedTickets()
   
   return (
     <main>
@@ -60,7 +76,10 @@ export default async function ClosedTickets({ searchParams }) {
       </div>
 
       <Suspense fallback={<div className="loading">Loading tickets...</div>}>
-        <ClosedTicketList searchParams={searchParams} />
+        <ClosedTicketList 
+          initialTickets={initialTickets} 
+          searchParams={searchParams} 
+        />
       </Suspense>
     </main>
   )

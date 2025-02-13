@@ -1,32 +1,34 @@
+'use client';
+
 import Link from "next/link";
-import { createClient } from "../../utils/supabase/server";
+import { useState, useEffect } from "react";
 import { getDaysAgo } from './utils';
 
-async function getTickets(priority, sort = 'newest') {
-  const supabase = createClient();
-  let query = supabase
-    .from("tickets")
-    .select()
-    .eq('closed', false)
-    .order('created_at', { ascending: sort === 'oldest' });
+export default function TicketList({ initialTickets, searchParams }) {
+  const [tickets, setTickets] = useState(initialTickets);
 
-  if (priority && priority !== 'all') {
-    query = query.eq('priority', priority);
-  }
+  useEffect(() => {
+    let filteredTickets = [...initialTickets];
+    
+    // Apply priority filter
+    if (searchParams?.priority && searchParams.priority !== 'all') {
+      filteredTickets = filteredTickets.filter(ticket => 
+        ticket.priority === searchParams.priority
+      );
+    }
 
-  const { data, error } = await query;
+    // Apply sort
+    filteredTickets.sort((a, b) => {
+      const aDate = new Date(a.created_at);
+      const bDate = new Date(b.created_at);
+      return searchParams?.sort === 'oldest' 
+        ? aDate - bDate 
+        : bDate - aDate;
+    });
 
-  if (error) {
-    console.log(error.message);
-  }
-  return data;
-}
+    setTickets(filteredTickets);
+  }, [initialTickets, searchParams?.priority, searchParams?.sort]);
 
-export default async function TicketList({ searchParams }) {
-  const tickets = await getTickets(
-    searchParams?.priority,
-    searchParams?.sort || 'newest'
-  );
   return (
     <>
       {tickets.map((ticket) => (

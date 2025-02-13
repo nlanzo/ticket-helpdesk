@@ -21,13 +21,30 @@ async function getTicketCounts() {
   };
 }
 
+async function getInitialTickets() {
+  const supabase = createClient();
+  const { data, error } = await supabase
+    .from("tickets")
+    .select()
+    .eq('closed', false);
+
+  if (error) {
+    console.log(error.message);
+    return [];
+  }
+  return data;
+}
+
 export const metadata = {
   title: "Helpdesk | Tickets",
   description: "All open tickets",
 };
 
 export default async function Tickets({ searchParams }) {
-  const counts = await getTicketCounts();
+  const [counts, initialTickets] = await Promise.all([
+    getTicketCounts(),
+    getInitialTickets()
+  ]);
   
   return (
     <main>
@@ -47,7 +64,10 @@ export default async function Tickets({ searchParams }) {
         <SortOrderFilter />
       </div>
       <Suspense fallback={<div className="loading">Loading tickets...</div>}>
-        <TicketList searchParams={{ priority: searchParams?.priority, sort: searchParams?.sort }} />
+        <TicketList 
+          initialTickets={initialTickets} 
+          searchParams={{ priority: searchParams?.priority, sort: searchParams?.sort }} 
+        />
       </Suspense>
     </main>
   );
