@@ -119,8 +119,11 @@ export default async function TicketDetails({ params }) {
         </div>
       </div>
       <div className="flex justify-end mt-4">
-        <Link href="/tickets/closed" className="text-sm text-blue-500 hover:underline">
-          View all closed tickets
+        <Link 
+          href={ticket.closed ? "/tickets/closed" : "/tickets"} 
+          className="text-sm text-blue-500 hover:underline"
+        >
+          View all {ticket.closed ? "closed" : "open"} tickets
         </Link>
       </div>
     </main>
